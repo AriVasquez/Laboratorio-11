@@ -1,0 +1,6 @@
+﻿variable,descripcion,tipo,nota_datos_faltantes,uso_en_laboratorio
+id_estudiante,Identificador único sintético de cada estudiante,Entero,No presenta faltantes,Identificar observaciones
+grupo,Grupo territorial para comparación: Urbano o Rural,Categórica,No presenta faltantes,Comparar composición de la muestra y población
+dispositivo,Disponibilidad de un dispositivo adecuado para estudiar,Categórica,Faltantes intencionales; más probables en estudiantes rurales,Examinar acceso a dispositivos y patrones de ausencia
+acceso_internet,Calidad de acceso a internet,Categórica,Faltantes intencionales; más probables en estudiantes rurales,Examinar acceso a internet y patrones de ausencia
+uso_plataforma,Frecuencia de uso de una plataforma educativa en escala de 1 a 5,Numérica ordinal,Faltantes intencionales; más probables en estudiantes rurales,Comparar uso reportado y sensibilidad a los filtros
