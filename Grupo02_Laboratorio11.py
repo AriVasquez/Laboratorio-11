@@ -60,25 +60,7 @@ faltantes = pd.DataFrame({
 print(faltantes)
 
 # PUNTO 7
-# Se crearon tres dataframes, cada uno contiene unicamente los registros cuyos
-# valores son nulos  segun la variable.
-faltantes_dispositivo = datos[datos["dispositivo"].isnull()]
-faltantes_acceso_internet = datos[datos["acceso_internet"].isnull()]
-faltantes_uso_plataforma = datos[datos["uso_plataforma"].isnull()]
-
-# Se calcula el porcentaje respecto al total de datos faltantes (el total depende de la variable)
-faltantes_dispositivo_grupo = ((faltantes_dispositivo["grupo"].value_counts())/52*100).round(1)
-faltantes_acceso_internet_grupo = ((faltantes_acceso_internet["grupo"].value_counts())/64*100).round(1)
-faltantes_uso_plataforma_grupo = ((faltantes_uso_plataforma["grupo"].value_counts())/176*100).round(1)
-
-# Se integran las Series en un DataFrame
-faltantes_por_grupo = pd.DataFrame({
-    "dispositivo": faltantes_dispositivo_grupo,
-    "acceso_internet": faltantes_acceso_internet_grupo,
-    "uso_plataforma": faltantes_uso_plataforma_grupo
-})
-print(faltantes_por_grupo)
-
-# Tambien se creó otro DataFrame donde el porcentaje de faltantes esta representado frente a la totalidad de los registros.
+# Se creó un DataFrame donde el porcentaje de faltantes esta representado frente a la totalidad de los registros.
+# Se utilizó .groupby() para agrupar por la variable "grupo"
 df_faltantes_grupo = datos.groupby('grupo')[['dispositivo', 'acceso_internet', 'uso_plataforma']].apply(lambda x: x.isnull().mean() * 100).round(1)
 print(df_faltantes_grupo)
