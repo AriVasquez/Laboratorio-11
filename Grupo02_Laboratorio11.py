@@ -3,48 +3,82 @@ import matplotlib.pyplot as plt
 
 # ********** Parte 1. Exploración inicial de los datos **********
 
+# PUNTO 1
 # Carga de datos
 datos = pd.read_csv("datos.csv")
-
 # Dimensiones del DataFrame
 filas, columnas = datos.shape
 print(f"Filas: {filas}, Columnas: {columnas}")
-
 # Información respecto a los tipos de variable y los datos faltantes
 datos.info()
-
 # Hay identificadores duplicados?
 print(f"Hay {datos["id_estudiante"].duplicated().sum()} identificadores duplicados.")
 
+# PUNTO 2
 # Cuál es la unidad de observación?
 print(datos.head())
 
 # ********** Parte 2. Representatividad de la muestra **********
 
+# PUNTO 3
 # Se crea una tabla de frecuencias para la columna grupo.
 frecuencia_muestra = (datos["grupo"].value_counts(normalize=True)*100).round(1)
 print(frecuencia_muestra)
-
-# 2. Definimos los valores de la población
+# Se definen los valores de la población con la informacion presentada en poblacion_referncia.csv
 proporcion_poblacion = {"Urbano": 80.0, "Rural": 20.0}
-
-# 3. Creamos un DataFrame combinando ambos
+# Se crea un dataframe que integra frecuencia_muestra y proporcion_poblacion
 df_comparacion = pd.DataFrame({
     "Muestra (%)": frecuencia_muestra,
     "Población (%)": proporcion_poblacion
 })
-
+# Verificamos la correcta creación del dataframe
 print(df_comparacion)
 
-# 4. Creamos el gráfico de barras agrupadas
+# PUNTO 4
+# Se crea el gráfico de barras agrupadas
 df_comparacion.plot(kind="bar", figsize=(8, 5), width=0.8)
-
 # Personalización del gráfico
 plt.title("Comparación de Proporciones: Muestra vs. Población")
 plt.xlabel("Grupo Territorial")
 plt.ylabel("Porcentaje (%)")
-plt.xticks(rotation=0)  # Mantiene los nombres de los grupos horizontales
+plt.xticks(rotation=0)
 plt.legend(title="Origen")
 plt.grid(axis="y", linestyle="--", alpha=0.7)
-plt.savefig("comparacion_proporciones.png")
+#plt.savefig("comparacion_proporciones.png")
 plt.show()
+
+# ********** Parte 3. Datos faltantes y exclusión de observaciones **********
+
+# PUNTO 6
+# Suma de la cantidad de valores faltantes
+n_faltantes = datos.isnull().sum()
+# DataFrame con n_faltantes y porcentaje de faltantes
+faltantes = pd.DataFrame({
+    "Número de faltantes": n_faltantes,
+    "Porcentaje de faltantes": (n_faltantes/12).round(1)
+})
+print(faltantes)
+
+# PUNTO 7
+# Se crearon tres dataframes, cada uno contiene unicamente los registros cuyos
+# valores son nulos  segun la variable.
+faltantes_dispositivo = datos[datos["dispositivo"].isnull()]
+faltantes_acceso_internet = datos[datos["acceso_internet"].isnull()]
+faltantes_uso_plataforma = datos[datos["uso_plataforma"].isnull()]
+
+# Se calcula el porcentaje respecto al total de datos faltantes (el total depende de la variable)
+faltantes_dispositivo_grupo = ((faltantes_dispositivo["grupo"].value_counts())/52*100).round(1)
+faltantes_acceso_internet_grupo = ((faltantes_acceso_internet["grupo"].value_counts())/64*100).round(1)
+faltantes_uso_plataforma_grupo = ((faltantes_uso_plataforma["grupo"].value_counts())/176*100).round(1)
+
+# Se integran las Series en un DataFrame
+faltantes_por_grupo = pd.DataFrame({
+    "dispositivo": faltantes_dispositivo_grupo,
+    "acceso_internet": faltantes_acceso_internet_grupo,
+    "uso_plataforma": faltantes_uso_plataforma_grupo
+})
+print(faltantes_por_grupo)
+
+# Tambien se creó otro DataFrame donde el porcentaje de faltantes esta representado frente a la totalidad de los registros.
+df_faltantes_grupo = datos.groupby('grupo')[['dispositivo', 'acceso_internet', 'uso_plataforma']].apply(lambda x: x.isnull().mean() * 100).round(1)
+print(df_faltantes_grupo)
