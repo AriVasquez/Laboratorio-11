@@ -64,3 +64,93 @@ print(faltantes)
 # Se utilizó .groupby() para agrupar por la variable "grupo"
 df_faltantes_grupo = datos.groupby('grupo')[['dispositivo', 'acceso_internet', 'uso_plataforma']].apply(lambda x: x.isnull().mean() * 100).round(1)
 print(df_faltantes_grupo)
+
+# PUNTO 8
+
+# Crear la variable booleana respuesta_completa
+datos["respuesta_completa"] = (
+    datos[["dispositivo", "acceso_internet", "uso_plataforma"]]
+    .notna()
+    .all(axis=1)
+)
+
+# Crear subconjunto con observaciones completas
+datos_completos = datos[datos["respuesta_completa"]]
+
+# Número de estudiantes que permanecen y que se excluyen
+n_permanecen = datos_completos.shape[0]
+n_excluidos = datos.shape[0] - n_permanecen
+
+print(f"Estudiantes que permanecen: {n_permanecen}")
+print(f"Estudiantes excluidos: {n_excluidos}")
+
+# PUNTO 9
+
+# Composición por grupos en la base original
+composicion_original = (
+    datos["grupo"]
+    .value_counts(normalize=True)
+    .mul(100)
+    .round(1)
+)
+
+# Composición por grupos en la base filtrada
+composicion_filtrada = (
+    datos_completos["grupo"]
+    .value_counts(normalize=True)
+    .mul(100)
+    .round(1)
+)
+
+# Porcentaje de estudiantes que permanece dentro de cada grupo
+permanencia_grupo = (
+    datos_completos.groupby("grupo").size()
+    / datos.groupby("grupo").size()
+    * 100
+).round(1)
+
+# Tabla resumen
+comparacion_grupos = pd.DataFrame({
+    "Original (%)": composicion_original,
+    "Filtrada (%)": composicion_filtrada,
+    "% que permanece": permanencia_grupo
+})
+
+print(comparacion_grupos)
+
+# ********** Parte 4. Consecuencias para el análisis **********
+
+# PUNTO 10
+
+# Estadísticas descriptivas - Base original
+print("BASE ORIGINAL")
+print(datos.groupby("grupo")["uso_plataforma"].describe())
+
+
+# Estadísticas descriptivas - Base filtrada
+print("BASE FILTRADA")
+print(datos_completos.groupby("grupo")["uso_plataforma"].describe())
+
+
+# Boxplot comparativo
+
+fig, axes = plt.subplots(1, 2, figsize=(12,5))
+
+datos.boxplot(
+    column="uso_plataforma",
+    by="grupo",
+    ax=axes[0]
+)
+axes[0].set_title("Base original")
+axes[0].set_ylabel("Uso plataforma")
+
+datos_completos.boxplot(
+    column="uso_plataforma",
+    by="grupo",
+    ax=axes[1]
+)
+axes[1].set_title("Base filtrada")
+
+plt.suptitle("")
+plt.tight_layout()
+plt.show()
